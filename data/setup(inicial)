@@ -1,0 +1,85 @@
+//..............................                          
+   lcd.clear();                                         //Limpa o Display para evitar sujeira
+   lcd.setCursor(0, 0);                                 //  seta o cursor no inicio do LCD 
+   lcd.print("Conectando-se a");                        //printa no LCD
+   Serial.println("Conectando-se a");                   // e no serial
+   lcd.setCursor(0, 1);                                 // linha de baixo
+   lcd.print("rede:");                                  //  
+   lcd.print(ssid);                                     //printa o nome da rede wifi
+   Serial.println(ssid);                                // no serial tbm
+   delay(1000);                                         // delay para dar tempo de ler o tempo da rede
+   lcd.clear();                                         //Limpa o Display para evitar sujeira
+   lcd.setCursor(0, 0);                                 //  seta o cursor no inicio do LCD 
+   lcd.print("status:");                                //
+   Serial.print("status:");
+   lcd.setCursor(0, 1);                           //
+      while (WiFi.status() != WL_CONNECTED)                 //Rotina para verificar qual o estado da conexão e printar no LCD
+          {
+//Rotina para evitar que seja printado desnecessário, ou seja printa só se atualizar o status
+          delay(200);
+          wifistatus = WiFi.status(); 
+          if (wifistatus != lastwifistatus)
+          {
+//Rotina para atualiza na tela o estatus atual do Wifi, até que esteja conectado
+            switch(WiFi.status())
+            {
+              case WL_NO_SSID_AVAIL:      // quando a rede não for encontrada
+                lcd.print("missing  ");
+                Serial.println("missing  ");   
+              break;
+              case WL_CONNECT_FAILED:      //quando as tentativas de conexão falharem.
+                lcd.print("falha    ");
+                Serial.println("falha         ");          // os espaços são para garantir que os caracteres não printados, fiquem com sujeira de outros prints
+              break;
+              case WL_DISCONNECTED:        //quando ela estiver desconectada de uma rede.
+                lcd.print("disconect       ");
+                Serial.println("disconect"); 
+              break;
+              case WL_CONNECTION_LOST:     //    quando a conexão for perdida ou interrompida (deixar de receber/enviar pacotes).
+                lcd.print("sem sinal       ");
+                Serial.println("sem sinal");
+              break;                                         
+              case WL_IDLE_STATUS:         //quando está ou em processo de tentativas de conexão ou as tentativas de conexão atingiram um limite e não foi obtido êxito na conexão, ou seja, a WiFi está ativa mas não conectada.
+                lcd.print("conectando      ");
+                Serial.println("conectando      "); 
+              break;
+              case WL_CONNECTED:         //quando está ou em processo de tentativas de conexão ou as tentativas de conexão atingiram um limite e não foi obtido êxito na conexão, ou seja, a WiFi está ativa mas não conectada.
+                lcd.print("conectando      ");
+                Serial.println("conectando      "); 
+              break;
+            }
+            lastwifistatus = wifistatus;                 //atualiza qual foi o ultimo status adquirido para
+          }
+          }
+// Printa que está conectado // mostra o IP atual.
+  lcd.setCursor(0, 1); 
+  lcd.print("OK              ");
+  Serial.println("OK");
+  Serial.println("Connected to the WiFi network");
+  delay(1000);
+  lcd.clear(); 
+  lcd.setCursor(0, 0);      //(coluna, Linha)
+  lcd.write(6);             //printa o sinal do wifi
+  lcd.print("=");                                        //Limpa o Display para evitar sujeira
+  lcd.setCursor(13, 0);      //(coluna, Linha)
+  lcd.print("IP:"); 
+  lcd.setCursor(0, 1);      //(coluna, Linha)
+  Serial.println(WiFi.macAddress());
+  Serial.println(WiFi.localIP());
+  lcd.print(WiFi.localIP()); 
+//Fica preso neste loop enquanto não for pressionado um botão (Para dar tempo de ler o IP)
+  while                               
+  ( 
+    (digitalRead(BOTDEC) == HIGH)
+    &&                                    //e
+    (digitalRead(BOTINC) == HIGH)  
+  )
+  {
+  delay(200);
+  rssi = WiFi.RSSI();
+  lcd.setCursor(2, 0);      //(coluna, Linha)
+  lcd.print("     ");
+  lcd.setCursor(2, 0);      //(coluna, Linha)
+  lcd.print(rssi);
+  Serial.println(rssi);
+  };

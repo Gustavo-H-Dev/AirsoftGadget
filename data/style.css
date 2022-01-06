@@ -1,0 +1,19 @@
+html {
+    font-family: Arial;
+    text-align: center;
+    } 
+	  .blue {
+      height: 30px;
+      text-align: left;
+      line-height: 30px;
+      color: white;
+      visibility: visible;
+      display: block;
+	    }
+	
+	  .red {
+      width: 100%%;
+      visibility: visible;
+      display: block;
+      margin: 0px auto;
+	  }

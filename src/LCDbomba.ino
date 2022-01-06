@@ -14,6 +14,7 @@
 #include "painlessmesh/mesh.hpp"
 #include "painlessmesh/tcp.hpp"
 #include "plugin/performance.hpp"
+#include "SPIFFS.h"
 
 
 /*******************************************************************
@@ -89,79 +90,6 @@ unsigned long meuip = 0;                        //IP do ESP para printar na tela
 long rssi = 0;                                  //armazena o dado do ganho do sinal de wifi
 char att[] = "1";                                 //Char que vai manter o valor de counter no xhtml enviado para a página
  
-
-/*******************************************************************
- * Criando os detalhes da página Web
- *******************************************************************/
-//Aloca a estrutura geral da página Web na memória flash do microcontroladora, a chamando de index_html
-const char index_html[] PROGMEM = R"rawliteral(
-<!DOCTYPE HTML><html>
-<head>
-  <title>Estado da captura</title>
-  <meta name="description" content="AirsoftGadget">
-  <meta charset="UTF-8">
-  <meta name="author" content="Gustavo S.">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    html {
-    font-family: Arial;
-    text-align: center;
-    } 
-	  .blue {
-      height: 30px;
-      text-align: left;
-      line-height: 30px;
-      color: white;
-      visibility: visible;
-      display: block;
-	    }
-	
-	  .red {
-      width: 100%%;
-      visibility: visible;
-      display: block;
-      margin: 0px auto;
-	  }
-  </style>
-  </head>
-  <body style="background-color:powderblue;">
-    <h1 id= "title">Ponto de captura A</h1>
-    <p id= "progress" > %PROGRESS% </p>
-    <div class= "red" id= "redb" style="background-color: #FF0000; height: 30px;"><div style="background-color: #0066FF; height: 30px; width: 50%%;" class= "blue" id= "blued" style></div></div>
-    <p style="text-align: left;"> Blue
-    <span style="float:right;">Red </span>
-    </p>
-    <p style="text-align: left;" id= "timerb"> %TIMERB%
-    <span style="float:right;" id= "timerr"> %TIMERR% </span>
-    </p>
-  </body>
-  <script>
-    setInterval(function ( ) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          document.getElementById("progress").innerHTML = this.responseText;
-          var elem = document.getElementById("blued");
-          elem.style.width = "" + this.responseText + "%%";
-          elem.innerHTML =  "" +  this.responseText + "%%";
-        }
-      };
-
-    xhttp.open("GET", "/att", true);
-      xhttp.send();
-    }, 500 ) ;
-    
-    setInterval(function ( ) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          document.getElementById("timerb").innerHTML = this.responseText;
-        }
-      };
-    </script>
-</html>
-)rawliteral";                                           //fim da página Web
-
 /*******************************************************************
  *Esta função inteira vai ser enviada no HTML para trocar o valor de Value pela String desejada. Ou então não altera nada
  *******************************************************************/
@@ -348,10 +276,12 @@ void setup()
 server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){                //quando houver conexão só com IP, manda a estrutura da página toda (index)
   request->send_P(200, "text/html", index_html, ReadCounter);                //200= thttpstatus OK, como a página será enviada, página Web, rotina te alteração automática
      Serial.println("REquisição de /");
+     Serial.println(WiFi.localIP());
 });
 server.on("/att", HTTP_GET, [](AsyncWebServerRequest *request){                //quando houver conexão só com IP, manda a estrutura da página toda (index)
   request->send_P(200, "text/plain", AttCounter().c_str());                //200= thttpstatus OK, como a página será enviada, página Web, rotina te alteração automática
        Serial.println("REquisição de /att");
+       Serial.println(AttCounter().c_str());
 });
 server.begin(); 
  } 
